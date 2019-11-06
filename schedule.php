@@ -160,6 +160,7 @@
         <script type="text/javascript">
 
           $(document).ready(function() {
+
             $.ajax({
                 url:"https://desafio.liberfly.com.br/meetings/showtoday",
                 cache: false,
@@ -180,17 +181,23 @@
 
                       if(response[i]["situation"] === 'ativo'){
                         $(".meets").append(
-                          "<li class='list-group-item d-flex justify-content-between bg-light'><div class='text-success'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small class='text-muted'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small></div><span class='fa fa-check'></span></li>"
+                          "<li class='list-group-item d-flex justify-content-between bg-light'><div class='text-success' style='width:100%'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small class='text-success'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small><br/><small><button type='button' id='cancelmeeting' class='btn btn-danger btn-sm' style='float: right'>Cancel</button></small> </div><span class='fa fa-check' style='margin-left: -7%'></span></li>"
                         );
                       }else{
                         $(".meets").append(
-                          "<li class='list-group-item d-flex justify-content-between bg-light'><div class='text-danger'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small class='text-muted'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small></div><span class='fa fa-times'></span></li>"
+                          "<li class='list-group-item d-flex justify-content-between bg-light'><div class='text-danger'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small class='text-danger'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small></div><span class='fa fa-times' style='margin-left: -7%'></span></li>"
                         );
                       }
                   }
                 
                 }
             });
+
+
+          });
+
+          $("#cancelmeeting").click(function() {
+              console.log("aaa");
           });
 
           $(function () {
