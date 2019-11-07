@@ -86,16 +86,16 @@
     <div class="col-md-8 order-md-1">
       <h4 class="mb-3">Schedule meeting</h4>
       
-      <form class="needs-validation" novalidate>
+      <form id="myformmeet" >
 
         <div class="row">
             <div class="col-md-5 mb-3">
                 <label for="roomnumber">Room number</label>
-                <select class="custom-select d-block w-100" id="country" required>
+                <select class="custom-select d-block w-100" id="roomnumber" name="room_id" required>
                 <option value="">Choose...</option>
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
                 </select>
                 <div class="invalid-feedback">
                     Please provide a room.
@@ -105,7 +105,7 @@
 
         <div class="mb-3">
           <label for="email">Email</label>
-          <input type="email" class="form-control" id="email" placeholder="you@example.com">
+          <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
           <div class="invalid-feedback">
             Please enter a valid email address for shipping updates.
           </div>
@@ -116,7 +116,7 @@
                 <label for="email">Start of the meeting</label>
                 <div class="form-group">
                     <div class="input-group date" id="datetimepicker1" data-target-input="nearest">
-                        <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
+                        <input type="text" data-format="dd/MM/yyyy hh:mm:ss" name="start_at" class="form-control datetimepicker-input" data-target="#datetimepicker1"/>
                         <div class="input-group-append" data-target="#datetimepicker1" data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
@@ -127,7 +127,7 @@
                 <label for="email">End of the meeting</label>
                 <div class="form-group">
                     <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
-                        <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker2"/>
+                        <input type="text" data-format="dd/MM/yyyy hh:mm:ss" name="finished_at" class="form-control datetimepicker-input" data-target="#datetimepicker2"/>
                         <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                         </div>
@@ -136,8 +136,17 @@
             </div>
         </div>
 
+        <div class="row">
+          <div class="col-sm-12">
+          <label for="descrip">Description meeting</label>
+          <textarea class="form-control" id="descrip" name="description" rows="3"></textarea>
+          </div>
+        </div>
+
+        <input type="hidden" id="" name="situation" value="ativo">
+
         <hr class="mb-4">
-        <button class="btn btn-primary btn-lg btn-block" onClick="createmeet()" type="submit" data-url="{{route('race.post')}}">Schedule</button>
+        <button class="btn btn-primary btn-lg btn-block" type="submit" data-url="{{route('race.post')}}">Schedule</button>
       </form>
     </div>
   </div>
@@ -162,6 +171,31 @@
 
           $(document).ready(function() {
 
+            $("#myformmeet").submit(function(event){
+              
+              event.preventDefault(); 
+              var token = $('meta[name="csrf-token"]').attr('content');
+              var form_data = new FormData(this);
+              
+              var formdatajson = JSON.stringify(Object.fromEntries(form_data));
+
+              console.log(JSON.stringify(Object.fromEntries(form_data)));
+
+              $.ajax({
+                  method: 'POST',
+                  header:{
+                      'X-CSRF-TOKEN': token
+                  },
+                  url:"http://localhost/meetings/",
+                  cache: false,
+                  dataType: 'json',
+                  data: formdatajson,
+                  success: function(data){
+                    console.log(data);
+                  }
+              });
+            });
+
             $.ajax({
                 url:"http://localhost/meetings/showtoday",
                 cache: false,
@@ -182,11 +216,11 @@
 
                       if(response[i]["situation"] === 'ativo'){
                         $(".meets").append(
-                          "<li class='list-group-item d-flex justify-content-between bg-light'><div class='text-success' style='width:100%'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small class='text-success'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small><br/><small><button type='button' id='cancelmeeting"+i+"' class='btn btn-danger btn-sm' onclick='teste("+response[i]["id"]+")' style='float: right' data-url='{{route('race.post')}}'>Cancel</button></small> </div><span class='fa fa-check' style='margin-left: -7%'></span></li>"
+                          "<li id='t1"+i+"' class='list-group-item d-flex justify-content-between bg-light'><div id='grid1"+i+"' class='' style='width:100%'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small id='gridsmall1"+i+"' class='text-success'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small><br/><small><button type='button' id='cancelmeeting"+i+"' class='btn btn-danger btn-sm' onclick='cancel("+response[i]["id"]+","+i+")' style='float: right' data-url='{{route('race.post')}}'>Cancel</button></small> </div><span id='fa"+i+"' class='fa fa-check text-success' style='margin-left: -7%'></span></li>"
                         );
                       }else{
                         $(".meets").append(
-                          "<li class='list-group-item d-flex justify-content-between bg-light'><div class='text-danger'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small class='text-danger'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small></div><span class='fa fa-times' style='margin-left: -7%'></span></li>"
+                          "<li id='t2"+i+"' class='list-group-item d-flex justify-content-between bg-light'><div id='grid2"+i+"' class=''><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small id='gridsmall2"+i+"' class='text-danger'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small></div><span class='fa fa-times text-danger' style='margin-left: -7%'></span></li>"
                         );
                       }
                   }
@@ -194,32 +228,21 @@
                 }
             });
 
-            $("#testesub").click(function () {
-
-              var datall = {
-                room_id: '2',
-	              email: 'desafio@liberfly.com.br',
-	              start_at: '2019-11-07 16:30:00',
-                finished_at: '2019-11-07 17:45:00',
-                description: 'reuniao de teste 1',
-                situation: 'ativo',
-                _token: "{{csrf_token()}}",
-              }
-            });
-
           });
 
           $(function () {
-              $('#datetimepicker1').datetimepicker();
+              $('#datetimepicker1').datetimepicker({
+                format: "L HH:mm"
+              });
           });
 
           $(function () {
-              $('#datetimepicker2').datetimepicker();
+              $('#datetimepicker2').datetimepicker({             
+                format: "L HH:mm"
+              });
           });
 
-
-
-          function teste(id){
+          function cancel(id, i){
             var token = $('meta[name="csrf-token"]').attr('content');
               var url = "http://localhost/meetings/"+id;    
               $.ajax( {
@@ -240,7 +263,9 @@
                   }        
               })
               .done(function() {
-                  alert('success');
+                  $("#gridsmall1"+i).addClass('text-danger');
+                  $("#fa"+i).addClass('fa fa-times text-danger');
+                  $("#cancelmeeting"+i).hide();
               })
               .fail(function() {
                   console.log("error");
@@ -248,6 +273,19 @@
           }
           
           function createmeet(){
+              var datall = {
+                room_id: '2',
+	              email: 'desafio@liberfly.com.br',
+	              start_at: '2019-11-07 16:30:00',
+                finished_at: '2019-11-07 17:45:00',
+                description: 'reuniao de teste 1',
+                situation: 'ativo',
+                _token: "{{csrf_token()}}",
+              }
+              var myForm = document.getElementById('myformmeet');
+              formData = new FormData(myForm);
+
+            console.log(formData);
 
           }
         </script> 
