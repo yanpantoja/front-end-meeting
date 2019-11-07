@@ -4,6 +4,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description" content="">
     <title>Schedule meeting | LiberFly</title>
 
@@ -136,7 +137,7 @@
         </div>
 
         <hr class="mb-4">
-        <button class="btn btn-primary btn-lg btn-block" type="submit">Schedule</button>
+        <button class="btn btn-primary btn-lg btn-block" onClick="createmeet()" type="submit" data-url="{{route('race.post')}}">Schedule</button>
       </form>
     </div>
   </div>
@@ -162,11 +163,11 @@
           $(document).ready(function() {
 
             $.ajax({
-                url:"https://desafio.liberfly.com.br/meetings/showtoday",
+                url:"http://localhost/meetings/showtoday",
                 cache: false,
                 method: 'GET',
-                crossDomain: true,
                 dataType: 'json',
+                crossDomain: true,
                 success: function(response){
 
                   console.log(response);
@@ -181,7 +182,7 @@
 
                       if(response[i]["situation"] === 'ativo'){
                         $(".meets").append(
-                          "<li class='list-group-item d-flex justify-content-between bg-light'><div class='text-success' style='width:100%'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small class='text-success'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small><br/><small><button type='button' id='cancelmeeting' class='btn btn-danger btn-sm' style='float: right'>Cancel</button></small> </div><span class='fa fa-check' style='margin-left: -7%'></span></li>"
+                          "<li class='list-group-item d-flex justify-content-between bg-light'><div class='text-success' style='width:100%'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small class='text-success'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small><br/><small><button type='button' id='cancelmeeting"+i+"' class='btn btn-danger btn-sm' onclick='teste("+response[i]["id"]+")' style='float: right' data-url='{{route('race.post')}}'>Cancel</button></small> </div><span class='fa fa-check' style='margin-left: -7%'></span></li>"
                         );
                       }else{
                         $(".meets").append(
@@ -193,11 +194,19 @@
                 }
             });
 
+            $("#testesub").click(function () {
 
-          });
+              var datall = {
+                room_id: '2',
+	              email: 'desafio@liberfly.com.br',
+	              start_at: '2019-11-07 16:30:00',
+                finished_at: '2019-11-07 17:45:00',
+                description: 'reuniao de teste 1',
+                situation: 'ativo',
+                _token: "{{csrf_token()}}",
+              }
+            });
 
-          $("#cancelmeeting").click(function() {
-              console.log("aaa");
           });
 
           $(function () {
@@ -207,6 +216,40 @@
           $(function () {
               $('#datetimepicker2').datetimepicker();
           });
+
+
+
+          function teste(id){
+            var token = $('meta[name="csrf-token"]').attr('content');
+              var url = "http://localhost/meetings/"+id;    
+              $.ajax( {
+                  method:'POST',
+                  header:{
+                    'X-CSRF-TOKEN': token
+                  },
+                  url: url,
+                  data:{
+                    _token: token,
+                    _method: 'PUT',
+                    dataType: 'json', 
+                    contentType:'application/json',
+                    situation: 'cancelado', 
+                  },
+                  success: function(data){
+                    console.log(data);
+                  }        
+              })
+              .done(function() {
+                  alert('success');
+              })
+              .fail(function() {
+                  console.log("error");
+              });
+          }
+          
+          function createmeet(){
+
+          }
         </script> 
 
 
