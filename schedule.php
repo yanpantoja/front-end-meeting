@@ -71,6 +71,17 @@
     <p class="lead">Meeting room scheduling.</p>
   </div>
 
+  <div class="alert alert-danger alert-dismissible" id="alert-danger">
+    <strong>Error!</strong> <span id="errordiv"></span>
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+
+  <div class="alert alert-success alert-dismissible" id="alert-success">
+    <strong>Success!</strong> Your meeting has been schedule successfully.
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+  </div>
+
+
   <div class="row">
     <div class="col-md-4 order-md-2 mb-4">
       <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -167,128 +178,7 @@
         <script type="text/javascript" src="js/moment.js"></script>
         <script type="text/javascript" src="js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <script type="text/javascript">
-
-          $(document).ready(function() {
-
-            $("#myformmeet").submit(function(event){
-              
-              event.preventDefault(); 
-              var token = $('meta[name="csrf-token"]').attr('content');
-              var form_data = new FormData(this);
-              
-              var formdatajson = JSON.stringify(Object.fromEntries(form_data));
-
-              console.log(JSON.stringify(Object.fromEntries(form_data)));
-
-              $.ajax({
-                  method: 'POST',
-                  header:{
-                      'X-CSRF-TOKEN': token
-                  },
-                  url:"http://localhost/meetings/",
-                  cache: false,
-                  dataType: 'json',
-                  data: formdatajson,
-                  success: function(data){
-                    console.log(data);
-                  }
-              });
-            });
-
-            $.ajax({
-                url:"http://localhost/meetings/showtoday",
-                cache: false,
-                method: 'GET',
-                dataType: 'json',
-                crossDomain: true,
-                success: function(response){
-
-                  console.log(response);
-
-                  var tam = response.length;
-                  $(".qmeet").html(tam);
-                  for (var i = 0; i < tam; i++) {
-                      var st = response[i]["start_at"];
-                      var end = response[i]["finished_at"];
-                      var st_array = st.split(' ');
-                      var end_array = end.split(' ');
-
-                      if(response[i]["situation"] === 'ativo'){
-                        $(".meets").append(
-                          "<li id='t1"+i+"' class='list-group-item d-flex justify-content-between bg-light'><div id='grid1"+i+"' class='' style='width:100%'><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small id='gridsmall1"+i+"' class='text-success'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small><br/><small><button type='button' id='cancelmeeting"+i+"' class='btn btn-danger btn-sm' onclick='cancel("+response[i]["id"]+","+i+")' style='float: right' data-url='{{route('race.post')}}'>Cancel</button></small> </div><span id='fa"+i+"' class='fa fa-check text-success' style='margin-left: -7%'></span></li>"
-                        );
-                      }else{
-                        $(".meets").append(
-                          "<li id='t2"+i+"' class='list-group-item d-flex justify-content-between bg-light'><div id='grid2"+i+"' class=''><h6 class='my-0'> Room "+response[i]["room_id"]+"</h6><small id='gridsmall2"+i+"' class='text-danger'>"+response[i]["situation"]+", "+st_array[1].substr(0,5)+"-"+end_array[1].substr(0,5)+"h</small></div><span class='fa fa-times text-danger' style='margin-left: -7%'></span></li>"
-                        );
-                      }
-                  }
-                
-                }
-            });
-
-          });
-
-          $(function () {
-              $('#datetimepicker1').datetimepicker({
-                format: "L HH:mm"
-              });
-          });
-
-          $(function () {
-              $('#datetimepicker2').datetimepicker({             
-                format: "L HH:mm"
-              });
-          });
-
-          function cancel(id, i){
-            var token = $('meta[name="csrf-token"]').attr('content');
-              var url = "http://localhost/meetings/"+id;    
-              $.ajax( {
-                  method:'POST',
-                  header:{
-                    'X-CSRF-TOKEN': token
-                  },
-                  url: url,
-                  data:{
-                    _token: token,
-                    _method: 'PUT',
-                    dataType: 'json', 
-                    contentType:'application/json',
-                    situation: 'cancelado', 
-                  },
-                  success: function(data){
-                    console.log(data);
-                  }        
-              })
-              .done(function() {
-                  $("#gridsmall1"+i).addClass('text-danger');
-                  $("#fa"+i).addClass('fa fa-times text-danger');
-                  $("#cancelmeeting"+i).hide();
-              })
-              .fail(function() {
-                  console.log("error");
-              });
-          }
-          
-          function createmeet(){
-              var datall = {
-                room_id: '2',
-	              email: 'desafio@liberfly.com.br',
-	              start_at: '2019-11-07 16:30:00',
-                finished_at: '2019-11-07 17:45:00',
-                description: 'reuniao de teste 1',
-                situation: 'ativo',
-                _token: "{{csrf_token()}}",
-              }
-              var myForm = document.getElementById('myformmeet');
-              formData = new FormData(myForm);
-
-            console.log(formData);
-
-          }
-        </script> 
+        <script type="text/javascript" src="js/custom.js"></script> 
 
 
 </body>
